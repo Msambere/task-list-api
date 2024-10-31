@@ -9,8 +9,7 @@ tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 @tasks_bp.post("")
 def create_task():
     request_body = request.get_json()
-    title = request_body['title']
-    description = request_body['description']
+    title, description = validate_new_task_data(request_body)
 
     new_task = Task(title=title, description=description)
     db.session.add(new_task)
@@ -50,7 +49,15 @@ def update_task(task_id):
         "task":task.to_dict()
         }, 200
     
-
+@tasks_bp.delete("/<task_id>")
+def delete_task(task_id):
+    task = validate_task_id(task_id)
+    db.session.delete(task)
+    db.session.commit()
+    response = {
+        "details":f"Task {task_id} \"{task.title}\" successfully deleted"
+    }
+    return response, 200
 
 
 # Helper Function
@@ -70,3 +77,19 @@ def validate_task_id(task_id):
 
     return found_task
     
+def validate_new_task_data(request_body):
+    try:
+        title = request_body['title']
+    except:
+        response = {"details": "Invalid data"}
+        abort(make_response(response, 400))
+    try:
+        description = request_body['description']
+    except:
+        response = {"details": "Invalid data"}
+        abort(make_response(response, 400))
+    if not isinstance(title, str) or not isinstance(description, str):
+        response = {"msg": "Invalid book details"}
+        abort(make_response(response, 400))
+
+    return title, description
