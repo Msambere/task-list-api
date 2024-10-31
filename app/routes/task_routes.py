@@ -21,4 +21,13 @@ def create_task():
     response = new_task.to_dict()
     return response, 201
 
+@tasks_bp.get("")
+def get_all_tasks():
+    query = db.select(Task).order_by(Task.id)
+    tasks = db.session.scalars(query)
 
+    response = []
+    for task in tasks:
+        response.append(task.to_dict())
+
+    return response, 200
