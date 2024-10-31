@@ -35,7 +35,21 @@ def get_one_task(task_id):
     task = validate_task_id(task_id)
     return {
         "task":task.to_dict()
-    }, 200
+        }, 200
+
+@tasks_bp.put("/<task_id>")
+def update_task(task_id):
+    task = validate_task_id(task_id)
+    request_body = request.get_json()
+
+    task.title = request_body['title']
+    task.description = request_body['description']
+    db.session.commit()
+
+    return {
+        "task":task.to_dict()
+        }, 200
+    
 
 
 
