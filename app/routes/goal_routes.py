@@ -20,6 +20,15 @@ def create_goal():
     response = {"goal": new_goal.to_dict()}
     return response, 201
 
+@goals_bp.get("")
+def get_all_goals():
+    query = db.select(Goal).order_by(Goal.id)
+    goals = db.session.scalars(query)
+
+    response=[goal.to_dict() for goal in goals]
+
+    return response, 200
+
 
 # Helper Functions
 def validate_new_goal_data(request_body):
