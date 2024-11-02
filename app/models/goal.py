@@ -8,9 +8,10 @@ class Goal(db.Model):
     title: Mapped[str]
     tasks: Mapped[List["Task"]] = relationship(back_populates="goal")
 
-
     def to_dict(self):
         return {
-            "id":self.id,
+            "id": self.id, 
             "title": self.title
-        }
+            }
+
+    
