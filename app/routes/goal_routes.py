@@ -29,6 +29,13 @@ def get_all_goals():
 
     return response, 200
 
+@goals_bp.get("/<goal_id>")
+def get_one_goal(goal_id):
+    goal = validate_goal_id(goal_id)
+
+    response = goal.to_dict()
+
+    return {"goal":response}, 200
 
 # Helper Functions
 def validate_new_goal_data(request_body):
@@ -42,3 +49,19 @@ def validate_new_goal_data(request_body):
         abort(make_response(response, 400))
 
     return title
+
+def validate_goal_id(goal_id):
+    try:
+        goal_id = int(goal_id)
+    except:
+        response = {"msg": f"Goal_id {goal_id} is invalid"}
+        abort(make_response(response, 400))
+
+    query = db.select(Goal).where(Goal.id == goal_id)
+    found_goal = db.session.scalar(query)
+
+    if not found_goal:
+        response = {"msg": f"Goal {goal_id} not found."}
+        abort(make_response(response, 404))
+
+    return found_goal
