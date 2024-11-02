@@ -47,6 +47,17 @@ def update_goal(goal_id):
 
     return {"title" : goal.title}, 200
 
+@goals_bp.delete("/<goal_id>")
+def delete_goal(goal_id):
+    goal = validate_goal_id(goal_id)
+    db.session.delete(goal)
+    db.session.commit()
+    
+    response = {
+        "details": f"Goal {goal.id} \"{goal.title}\" successfully deleted"
+    }
+    return response, 200
+
 
 # Helper Functions
 def validate_new_goal_data(request_body):
