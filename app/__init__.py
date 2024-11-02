@@ -1,8 +1,8 @@
-from flask import Flask
-from .db import db, migrate
-from app.models import task
 import os
+from flask import Flask
 from app.routes.task_routes import tasks_bp
+from app.models import task
+from .db import db, migrate
 
 def create_app(config=None):
     app = Flask(__name__)
