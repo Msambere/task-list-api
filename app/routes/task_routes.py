@@ -41,7 +41,10 @@ def get_all_tasks():
 @tasks_bp.get("/<task_id>")
 def get_one_task(task_id):
     task = validate_task_id(task_id)
-    return {"task": task.to_dict()}, 200
+    task_dict=task.to_dict()
+    if task.goal_id:
+        task_dict["goal_id"]= task.goal_id
+    return {"task": task_dict}, 200
 
 
 @tasks_bp.put("/<task_id>")

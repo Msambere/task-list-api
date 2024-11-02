@@ -122,7 +122,9 @@ def validate_goal_id(goal_id):
 def generate_tasks_list(goal):
         task_list=[]
         for task in goal.tasks:
-            task_list.append(task.to_dict())
+            task_dict = task.to_dict()
+            task_dict["goal_id"] = goal.id
+            task_list.append(task_dict)
         return task_list
 
 
