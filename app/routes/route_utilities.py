@@ -16,3 +16,13 @@ def validate_model_id(cls, model_id):
         abort(make_response(response, 404))
 
     return found_model
+
+def delete_record(cls, model_id):
+    model = validate_model_id(cls, model_id)
+    db.session.delete(model)
+    db.session.commit()
+    
+    response = {
+        "details": f"{cls.__name__} {model.id} \"{model.title}\" successfully deleted"
+    }
+    return response, 200
