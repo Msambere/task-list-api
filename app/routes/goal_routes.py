@@ -2,14 +2,15 @@ from flask import Blueprint, abort, make_response, request, Response
 from app.models.goal import Goal
 from app.db import db
 from sqlalchemy import desc
-from app.routes.route_utilities import validate_model_id
+from app.routes.route_utilities import validate_model_id, delete_record
+from app.models.task import Task
 import datetime
 import requests
 import os
 
-bp = Blueprint("bp", __name__, url_prefix="/goals")
+goal_bp = Blueprint("goal_bp", __name__, url_prefix="/goals")
 
-@bp.post("")
+@goal_bp.post("")
 def create_goal():
     request_body = request.get_json()
     title = validate_new_goal_data(request_body)
@@ -21,7 +22,7 @@ def create_goal():
     response = {"goal": new_goal.to_dict()}
     return response, 201
 
-@bp.get("")
+@goal_bp.get("")
 def get_all_goals():
     query = db.select(Goal).order_by(Goal.id)
     goals = db.session.scalars(query)
@@ -30,7 +31,7 @@ def get_all_goals():
 
     return response, 200
 
-@bp.get("/<goal_id>")
+@goal_bp.get("/<goal_id>")
 def get_one_goal(goal_id):
     goal = validate_model_id(Goal, goal_id)
 
@@ -38,7 +39,7 @@ def get_one_goal(goal_id):
 
     return {"goal":response}, 200
 
-@bp.put("/<goal_id>")
+@goal_bp.put("/<goal_id>")
 def update_goal(goal_id):
     goal=validate_model_id(Goal, goal_id)
     request_body = request.get_json()
@@ -48,43 +49,37 @@ def update_goal(goal_id):
 
     return {"title" : goal.title}, 200
 
-@bp.delete("/<goal_id>")
+@goal_bp.delete("/<goal_id>")
 def delete_goal(goal_id):
-    goal = validate_model_id(Goal, goal_id)
-    db.session.delete(goal)
-    db.session.commit()
-    
-    response = {
-        "details": f"Goal {goal.id} \"{goal.title}\" successfully deleted"
-    }
-    return response, 200
+    return delete_record(Goal, goal_id)
 
-@bp.post("/<goal_id>/tasks")
+@goal_bp.post("/<goal_id>/tasks")
 def add_tasks_to_goal(goal_id):
     goal=validate_model_id(Goal, goal_id)
     request_body=request.get_json()
 
     task_list= request_body["task_ids"]
-
     for task in task_list:
-        task = validate_task_id(task)
+        task = validate_model_id(Task, task)
         task.goal_id = goal_id
     db.session.commit()
 
     task_ids =[]
     for task in goal.tasks:
         task_ids.append(task.id)
-    # response= task_ids
+  
     response = {
         "id": goal.id,
         "task_ids": task_ids
     }
     return response, 200
 
-@bp.get("/<goal_id>/tasks")
+@goal_bp.get("/<goal_id>/tasks")
 def get_tasks_of_one_goal(goal_id):
     goal = validate_model_id(Goal, goal_id)
-    task_list = generate_tasks_list(goal)
+
+    task_list = goal.generate_tasks_list()
+
     response = goal.to_dict()
     response["tasks"] = task_list
     return response, 200
@@ -103,12 +98,12 @@ def validate_new_goal_data(request_body):
 
     return title
 
-def generate_tasks_list(goal):
-        task_list=[]
-        for task in goal.tasks:
-            task_dict = task.to_dict()
-            task_dict["goal_id"] = goal.id
-            task_list.append(task_dict)
-        return task_list
+# def generate_tasks_list(goal):
+#         task_list=[]
+#         for task in goal.tasks:
+#             task_dict = task.to_dict()
+#             task_dict["goal_id"] = goal.id
+#             task_list.append(task_dict)
+#         return task_list
 
 
