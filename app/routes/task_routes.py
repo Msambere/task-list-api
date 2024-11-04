@@ -128,8 +128,7 @@ def validate_new_task_data(request_body):
 def send_task_completion_slack(task):
     url = "https://slack.com/api/chat.postMessage"
     api_key = os.environ.get("SLACK_BOT_TOKEN")
-    token = "Bearer "+str(api_key)
-    header = {"Authorization": token}
+    header = {"Authorization": f"Bearer {api_key}"}
     request_body = {
         "channel": "C07UJK253A7",
         "text": f"Someone just completed the task {task.title}",
