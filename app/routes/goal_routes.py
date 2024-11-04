@@ -2,7 +2,7 @@ from flask import Blueprint, abort, make_response, request, Response
 from app.models.goal import Goal
 from app.db import db
 from sqlalchemy import desc
-from app.routes.task_routes import validate_task_id
+from app.routes.route_utilities import validate_model_id
 import datetime
 import requests
 import os
@@ -32,7 +32,7 @@ def get_all_goals():
 
 @bp.get("/<goal_id>")
 def get_one_goal(goal_id):
-    goal = validate_goal_id(goal_id)
+    goal = validate_model_id(Goal, goal_id)
 
     response = goal.to_dict()
 
@@ -40,7 +40,7 @@ def get_one_goal(goal_id):
 
 @bp.put("/<goal_id>")
 def update_goal(goal_id):
-    goal=validate_goal_id(goal_id)
+    goal=validate_model_id(Goal, goal_id)
     request_body = request.get_json()
 
     goal.title = request_body["title"]
@@ -50,7 +50,7 @@ def update_goal(goal_id):
 
 @bp.delete("/<goal_id>")
 def delete_goal(goal_id):
-    goal = validate_goal_id(goal_id)
+    goal = validate_model_id(Goal, goal_id)
     db.session.delete(goal)
     db.session.commit()
     
@@ -61,7 +61,7 @@ def delete_goal(goal_id):
 
 @bp.post("/<goal_id>/tasks")
 def add_tasks_to_goal(goal_id):
-    goal=validate_goal_id(goal_id)
+    goal=validate_model_id(Goal, goal_id)
     request_body=request.get_json()
 
     task_list= request_body["task_ids"]
@@ -83,7 +83,7 @@ def add_tasks_to_goal(goal_id):
 
 @bp.get("/<goal_id>/tasks")
 def get_tasks_of_one_goal(goal_id):
-    goal = validate_goal_id(goal_id)
+    goal = validate_model_id(Goal, goal_id)
     task_list = generate_tasks_list(goal)
     response = goal.to_dict()
     response["tasks"] = task_list
@@ -102,22 +102,6 @@ def validate_new_goal_data(request_body):
         abort(make_response(response, 400))
 
     return title
-
-def validate_goal_id(goal_id):
-    try:
-        goal_id = int(goal_id)
-    except:
-        response = {"msg": f"Goal_id {goal_id} is invalid"}
-        abort(make_response(response, 400))
-
-    query = db.select(Goal).where(Goal.id == goal_id)
-    found_goal = db.session.scalar(query)
-
-    if not found_goal:
-        response = {"msg": f"Goal {goal_id} not found."}
-        abort(make_response(response, 404))
-
-    return found_goal
 
 def generate_tasks_list(goal):
         task_list=[]

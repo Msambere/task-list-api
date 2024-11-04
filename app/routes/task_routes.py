@@ -5,6 +5,7 @@ from sqlalchemy import desc
 import datetime
 import requests
 import os
+from app.routes.route_utilities import validate_model_id
 
 bp = Blueprint("bp", __name__, url_prefix="/tasks")
 
@@ -40,7 +41,7 @@ def get_all_tasks():
 
 @bp.get("/<task_id>")
 def get_one_task(task_id):
-    task = validate_task_id(task_id)
+    task = validate_model_id(Task, task_id)
     task_dict=task.to_dict()
     if task.goal_id:
         task_dict["goal_id"]= task.goal_id
@@ -49,7 +50,7 @@ def get_one_task(task_id):
 
 @bp.put("/<task_id>")
 def update_task(task_id):
-    task = validate_task_id(task_id)
+    task = validate_model_id(Task, task_id)
     request_body = request.get_json()
 
     task.title = request_body["title"]
@@ -61,7 +62,7 @@ def update_task(task_id):
 
 @bp.delete("/<task_id>")
 def delete_task(task_id):
-    task = validate_task_id(task_id)
+    task = validate_model_id(Task, task_id)
     db.session.delete(task)
     db.session.commit()
     response = {"details": f'Task {task_id} "{task.title}" successfully deleted'}
@@ -70,7 +71,7 @@ def delete_task(task_id):
 
 @bp.patch("/<task_id>/mark_complete")
 def mark_task_complete(task_id):
-    task = validate_task_id(task_id)
+    task = validate_model_id(Task, task_id)
 
     task.completed_at = datetime.datetime.now()
     db.session.commit()
@@ -83,7 +84,7 @@ def mark_task_complete(task_id):
 
 @bp.patch("/<task_id>/mark_incomplete")
 def mark_task_incomplete(task_id):
-    task = validate_task_id(task_id)
+    task = validate_model_id(Task, task_id)
     task.completed_at = None
     db.session.commit()
 
@@ -91,22 +92,6 @@ def mark_task_incomplete(task_id):
 
 
 # Helper Function
-def validate_task_id(task_id):
-    try:
-        task_id = int(task_id)
-    except:
-        response = {"msg": f"Task id {task_id} is invalid"}
-        abort(make_response(response, 400))
-
-    query = db.select(Task).where(Task.id == task_id)
-    found_task = db.session.scalar(query)
-
-    if not found_task:
-        response = {"msg": f"Task {task_id} not found."}
-        abort(make_response(response, 404))
-
-    return found_task
-
 
 def validate_new_task_data(request_body):
     try:
