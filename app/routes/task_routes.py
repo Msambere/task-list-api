@@ -6,10 +6,10 @@ import datetime
 import requests
 import os
 
-tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
+bp = Blueprint("bp", __name__, url_prefix="/tasks")
 
 
-@tasks_bp.post("")
+@bp.post("")
 def create_task():
     request_body = request.get_json()
     title, description = validate_new_task_data(request_body)
@@ -22,7 +22,7 @@ def create_task():
     return response, 201
 
 
-@tasks_bp.get("")
+@bp.get("")
 def get_all_tasks():
     sort_param = request.args.get("sort")
     query = db.select(Task)
@@ -38,7 +38,7 @@ def get_all_tasks():
     return response, 200
 
 
-@tasks_bp.get("/<task_id>")
+@bp.get("/<task_id>")
 def get_one_task(task_id):
     task = validate_task_id(task_id)
     task_dict=task.to_dict()
@@ -47,7 +47,7 @@ def get_one_task(task_id):
     return {"task": task_dict}, 200
 
 
-@tasks_bp.put("/<task_id>")
+@bp.put("/<task_id>")
 def update_task(task_id):
     task = validate_task_id(task_id)
     request_body = request.get_json()
@@ -59,7 +59,7 @@ def update_task(task_id):
     return {"task": task.to_dict()}, 200
 
 
-@tasks_bp.delete("/<task_id>")
+@bp.delete("/<task_id>")
 def delete_task(task_id):
     task = validate_task_id(task_id)
     db.session.delete(task)
@@ -68,7 +68,7 @@ def delete_task(task_id):
     return response, 200
 
 
-@tasks_bp.patch("/<task_id>/mark_complete")
+@bp.patch("/<task_id>/mark_complete")
 def mark_task_complete(task_id):
     task = validate_task_id(task_id)
 
@@ -81,7 +81,7 @@ def mark_task_complete(task_id):
         return {"task": task.to_dict()}, 200
 
 
-@tasks_bp.patch("/<task_id>/mark_incomplete")
+@bp.patch("/<task_id>/mark_incomplete")
 def mark_task_incomplete(task_id):
     task = validate_task_id(task_id)
     task.completed_at = None

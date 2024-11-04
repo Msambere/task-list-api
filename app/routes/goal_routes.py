@@ -7,9 +7,9 @@ import datetime
 import requests
 import os
 
-goals_bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
+bp = Blueprint("bp", __name__, url_prefix="/goals")
 
-@goals_bp.post("")
+@bp.post("")
 def create_goal():
     request_body = request.get_json()
     title = validate_new_goal_data(request_body)
@@ -21,7 +21,7 @@ def create_goal():
     response = {"goal": new_goal.to_dict()}
     return response, 201
 
-@goals_bp.get("")
+@bp.get("")
 def get_all_goals():
     query = db.select(Goal).order_by(Goal.id)
     goals = db.session.scalars(query)
@@ -30,7 +30,7 @@ def get_all_goals():
 
     return response, 200
 
-@goals_bp.get("/<goal_id>")
+@bp.get("/<goal_id>")
 def get_one_goal(goal_id):
     goal = validate_goal_id(goal_id)
 
@@ -38,7 +38,7 @@ def get_one_goal(goal_id):
 
     return {"goal":response}, 200
 
-@goals_bp.put("/<goal_id>")
+@bp.put("/<goal_id>")
 def update_goal(goal_id):
     goal=validate_goal_id(goal_id)
     request_body = request.get_json()
@@ -48,7 +48,7 @@ def update_goal(goal_id):
 
     return {"title" : goal.title}, 200
 
-@goals_bp.delete("/<goal_id>")
+@bp.delete("/<goal_id>")
 def delete_goal(goal_id):
     goal = validate_goal_id(goal_id)
     db.session.delete(goal)
@@ -59,7 +59,7 @@ def delete_goal(goal_id):
     }
     return response, 200
 
-@goals_bp.post("/<goal_id>/tasks")
+@bp.post("/<goal_id>/tasks")
 def add_tasks_to_goal(goal_id):
     goal=validate_goal_id(goal_id)
     request_body=request.get_json()
@@ -81,7 +81,7 @@ def add_tasks_to_goal(goal_id):
     }
     return response, 200
 
-@goals_bp.get("/<goal_id>/tasks")
+@bp.get("/<goal_id>/tasks")
 def get_tasks_of_one_goal(goal_id):
     goal = validate_goal_id(goal_id)
     task_list = generate_tasks_list(goal)
