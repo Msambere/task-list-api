@@ -4,24 +4,33 @@ from ..db import db
 from typing import Optional
 from datetime import datetime
 
+
 class Task(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     title: Mapped[str]
     description: Mapped[str]
     # completed_at:Mapped[datetime] = mapped_column(default=None, nullable=True)
-    completed_at:Mapped[Optional[datetime]]
-    goal_id:Mapped[Optional[str]]=mapped_column(ForeignKey("goal.id"))
-    goal: Mapped["Goal"] = relationship(back_populates="tasks")
-    
+    completed_at: Mapped[Optional[datetime]]
+    goal_id: Mapped[Optional[int]] = mapped_column(ForeignKey("goal.id"))
+    goal: Mapped[Optional["Goal"]] = relationship(back_populates="tasks")
+
+    @classmethod
+    def from_dict(cls, task_data):
+        return cls(
+            title=task_data["title"],
+            description=task_data["description"],
+            goal_id=task_data.get("goal_id"),
+        )
+
     def to_dict(self):
-        completed=False
+        completed = False
         if self.completed_at:
             completed = True
 
         return {
-            "id": self.id, 
+            "id": self.id,
             # "goal_id": self.goal_id,
-            "title": self.title, 
-            "description": self.description, 
-            "is_complete":completed
-            }
+            "title": self.title,
+            "description": self.description,
+            "is_complete": completed,
+        }
