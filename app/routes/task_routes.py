@@ -25,9 +25,9 @@ def get_all_tasks():
 @task_bp.get("/<task_id>")
 def get_one_task(task_id):
     task = validate_model_id(Task, task_id)
-    task_dict=task.to_dict()
+    task_dict = task.to_dict()
     if task.goal_id:
-        task_dict["goal_id"]= task.goal_id
+        task_dict["goal_id"] = task.goal_id
     return {"task": task_dict}, 200
 
 

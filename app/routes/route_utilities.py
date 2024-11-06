@@ -42,7 +42,7 @@ def get_models_with_filters(cls, filter_params=None):
             order_by = getattr(cls,filter_params["order_by"])
         else:
             order_by = cls.title
-       
+
         if "sort" in filter_params:
             if filter_params["sort"] == "desc":
                 query = query.order_by(desc(order_by))

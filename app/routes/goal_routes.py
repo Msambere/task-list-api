@@ -50,7 +50,7 @@ def add_tasks_to_goal(goal_id):
         task.goal_id = goal_id
     db.session.commit()
 
-    task_ids =[]
+    task_ids = []
     for task in goal.tasks:
         task_ids.append(task.id)
   
