@@ -5,7 +5,7 @@ from sqlalchemy import desc
 import datetime
 import requests
 import os
-from app.routes.route_utilities import validate_model_id, delete_record, create_model
+from app.routes.route_utilities import validate_model_id, delete_record, create_model, get_models_with_filters
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
@@ -18,18 +18,8 @@ def create_task():
 
 @task_bp.get("")
 def get_all_tasks():
-    sort_param = request.args.get("sort")
-    query = db.select(Task)
-    if sort_param == "asc":
-        query = query.order_by(Task.title)
-    if sort_param == "desc":
-        query = query.order_by(desc(Task.title))
-
-    tasks = db.session.scalars(query)
-
-    response = [task.to_dict() for task in tasks]
-
-    return response, 200
+    filter_params = request.args
+    return get_models_with_filters(Task, filter_params)
 
 
 @task_bp.get("/<task_id>")
