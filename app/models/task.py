@@ -27,10 +27,14 @@ class Task(db.Model):
         if self.completed_at:
             completed = True
 
-        return {
+        response = {
             "id": self.id,
-            # "goal_id": self.goal_id,
             "title": self.title,
             "description": self.description,
             "is_complete": completed,
         }
+        
+        if self.goal_id:
+            response["goal_id"] = self.goal_id
+
+        return response
