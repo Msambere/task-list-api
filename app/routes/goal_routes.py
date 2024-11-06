@@ -2,25 +2,16 @@ from flask import Blueprint, abort, make_response, request, Response
 from app.models.goal import Goal
 from app.db import db
 from sqlalchemy import desc
-from app.routes.route_utilities import validate_model_id, delete_record
+from app.routes.route_utilities import validate_model_id, delete_record, create_model
 from app.models.task import Task
-import datetime
-import requests
-import os
+
 
 goal_bp = Blueprint("goal_bp", __name__, url_prefix="/goals")
 
 @goal_bp.post("")
 def create_goal():
     request_body = request.get_json()
-    title = validate_new_goal_data(request_body)
-
-    new_goal = Goal(title=title)
-    db.session.add(new_goal)
-    db.session.commit()
-
-    response = {"goal": new_goal.to_dict()}
-    return response, 201
+    return create_model(Goal, request_body)
 
 @goal_bp.get("")
 def get_all_goals():
@@ -85,25 +76,6 @@ def get_tasks_of_one_goal(goal_id):
     return response, 200
 
 
-# Helper Functions
-def validate_new_goal_data(request_body):
-    try:
-        title = request_body["title"]
-    except:
-        response = {"details": "Invalid data"}
-        abort(make_response(response, 400))
-    if not isinstance(title, str):
-        response = {"msg": "Invalid book details"}
-        abort(make_response(response, 400))
 
-    return title
-
-# def generate_tasks_list(goal):
-#         task_list=[]
-#         for task in goal.tasks:
-#             task_dict = task.to_dict()
-#             task_dict["goal_id"] = goal.id
-#             task_list.append(task_dict)
-#         return task_list
 
 

@@ -5,7 +5,7 @@ from sqlalchemy import desc
 import datetime
 import requests
 import os
-from app.routes.route_utilities import validate_model_id, delete_record
+from app.routes.route_utilities import validate_model_id, delete_record, create_model
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
@@ -13,14 +13,7 @@ task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 @task_bp.post("")
 def create_task():
     request_body = request.get_json()
-    title, description = validate_new_task_data(request_body)
-
-    new_task = Task(title=title, description=description)
-    db.session.add(new_task)
-    db.session.commit()
-
-    response = {"task": new_task.to_dict()}
-    return response, 201
+    return create_model(Task, request_body)
 
 
 @task_bp.get("")
@@ -88,23 +81,6 @@ def mark_task_incomplete(task_id):
 
 
 # Helper Function
-
-def validate_new_task_data(request_body):
-    try:
-        title = request_body["title"]
-    except:
-        response = {"details": "Invalid data"}
-        abort(make_response(response, 400))
-    try:
-        description = request_body["description"]
-    except:
-        response = {"details": "Invalid data"}
-        abort(make_response(response, 400))
-    if not isinstance(title, str) or not isinstance(description, str):
-        response = {"msg": "Invalid book details"}
-        abort(make_response(response, 400))
-
-    return title, description
 
 def send_task_completion_slack(task):
     url = "https://slack.com/api/chat.postMessage"
