@@ -1,7 +1,7 @@
 import pytest
 from app.models.task import Task
 from app.models.goal import Goal
-from app.routes.route_utilities import validate_new_model_data
+from app.routes.route_utilities import validate_new_model_data, get_models_with_filters
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_validate_new_model_data():
@@ -24,3 +24,55 @@ def test_validate_new_model_data_missing_data():
 
     # Assert
     assert results == model_data
+
+
+# @pytest.mark.skip(reason="No way to test this feature yet")
+def test_get_models_with_filters(three_tasks):
+    # Arrange
+    cls = Task
+    filter_params = {
+        "title": "water"
+    }
+
+    # Act
+    result = get_models_with_filters(cls, filter_params)
+
+    # Assert
+    assert result[1] == 200
+    assert len(result[0]) == 1
+    assert result[0] == [{
+        "id": 1,
+        "title": "Water the garden 🌷", 
+        "description": "", 
+        "is_complete": False}]
+
+# @pytest.mark.skip(reason="No way to test this feature yet")
+def test_get_models_with_filters_no_filter_params(three_tasks):
+    # Arrange
+    cls = Task
+    # Act
+    result = get_models_with_filters(cls)
+
+    # Assert
+    assert result[1] == 200
+    assert len(result[0]) == 3
+    assert result[0] == [
+        {
+            "id": 1,
+            "title": "Water the garden 🌷", 
+            "description": "", 
+            "is_complete": False
+        },
+        {
+            "id": 2,
+            "title": "Answer forgotten email 📧", 
+            "description":"", 
+            "is_complete": False
+        },
+        {
+            "id": 3,
+            "title":"Pay my outstanding tickets 😭", 
+            "description":"", 
+            "is_complete": False
+        }
+    ]
