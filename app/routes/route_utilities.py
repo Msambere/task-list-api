@@ -3,6 +3,7 @@ import inspect
 from ..db import db
 from app.models.task import Task
 from app.models.goal import Goal
+from sqlalchemy import desc
 
 def validate_model_id(cls, model_id):
     try:
@@ -34,10 +35,20 @@ def get_models_with_filters(cls, filter_params=None):
     query = db.select(cls)
     if filter_params:
         for param, value in filter_params.items():
-            if param != "order_by" and  hasattr(cls, param):
+            if param != "order_by" and param != "sort" and  hasattr(cls, param):
                 query = query.where(getattr(cls, param).ilike(f"%{value}%"))
+        
         if "order_by" in filter_params:
-            query = query.order_by(getattr(cls,filter_params["order_by"]))
+            order_by = getattr(cls,filter_params["order_by"])
+        else:
+            order_by = cls.title
+       
+        if "sort" in filter_params:
+            if filter_params["sort"] == "desc":
+                query = query.order_by(desc(order_by))
+            else:
+                query = query.order_by(order_by)
+                
 
     models = db.session.scalars(query)
 
