@@ -68,21 +68,13 @@ def delete_record(cls, model_id):
 
 #helper function
 def validate_new_model_data(cls, model_data):
-# import inspect
-# class_attributes = inspect.getargspec(Thing).args)
-# class_attributes.pop("id")
-
-    class_attributes = []
-    if cls == Goal or cls == Task:
-        class_attributes.append("title")
-    if cls == Task:
-        class_attributes.append("description")
+    class_attributes = cls.attr_list()
 
     for attribute in class_attributes:
         try:
             attribute = model_data[attribute]
-        except:
-            response = {"details": "Invalid data"}
+        except KeyError as error:
+            response = {"details": f"Invalid {error.args[0]} data"}
             abort(make_response(response, 400))
 
     return model_data
