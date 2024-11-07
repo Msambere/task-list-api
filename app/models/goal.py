@@ -12,6 +12,10 @@ class Goal(db.Model):
         return cls(
             title=task_data["title"]
         )
+    
+    @classmethod
+    def attr_list(cls):
+        return ["title"]
 
     def to_dict(self):
         return {"id": self.id, "title": self.title}

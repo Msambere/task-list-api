@@ -22,6 +22,10 @@ class Task(db.Model):
             goal_id=task_data.get("goal_id"),
         )
 
+    @classmethod
+    def attr_list(cls):
+        return ["title", "description"]
+
     def to_dict(self):
         completed = False
         if self.completed_at:
