@@ -50,7 +50,7 @@ def delete_task(task_id):
 
 @task_bp.patch("/<task_id>/mark_complete")
 def mark_task_complete(task_id):
-    task = validate_model_id(Task, task_id) # Do I have to import task for this?
+    task = validate_model_id(Task, task_id) # Does this function specifically need Task imported, since the route_utilities.py has imported Task?
 
     task.completed_at = datetime.datetime.now()
     db.session.commit()

@@ -45,26 +45,22 @@ def add_tasks_to_goal(goal_id):
     request_body=request.get_json()
 
     task_list= request_body["task_ids"]
-    task_objects = []
-    for task in task_list:
-        task = validate_model_id(Task, task)
-        task_objects.append(task)
 
+    task_objects = [validate_model_id(Task, task_id) for task_id in task_list]
     goal.tasks = task_objects   
     db.session.commit()
 
     # Alternative:
-    # task_list= request_body["task_ids"]
     # for task in task_list:
     #     task = validate_model_id(Task, task)
-    #     task.goal_id = goal_id
+    #     task.goal_id = goal.id
     # db.session.commit()
 
-    task_ids = [task.id for task in goal.tasks]
+    added_task_ids = [task.id for task in goal.tasks]
 
     response = {
         "id": goal.id,
-        "task_ids": task_ids
+        "task_ids": added_task_ids
     }
     return response, 200
 
